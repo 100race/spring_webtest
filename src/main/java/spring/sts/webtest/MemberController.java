@@ -1,6 +1,7 @@
 package spring.sts.webtest;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import javax.servlet.http.Cookie;
@@ -13,6 +14,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
@@ -25,6 +27,82 @@ public class MemberController {
 	
 	@Autowired
 	private MemberMapper mapper;
+	
+	@RequestMapping("/admin/list")
+	public String list(HttpServletRequest request) {
+		
+// 검색관련------------------------
+		String col = Utility.checkNull(request.getParameter("col"));
+		String word = Utility.checkNull(request.getParameter("word"));
+
+		if (col.equals("total")) {
+			word = "";
+		}
+
+		// 페이지관련-----------------------
+		int nowPage = 1;// 현재 보고있는 페이지
+		if (request.getParameter("nowPage") != null) {
+			nowPage = Integer.parseInt(request.getParameter("nowPage"));
+		}
+		int recordPerPage = 3;// 한페이지당 보여줄 레코드갯수
+
+		// DB에서 가져올 순번-----------------
+		int sno = ((nowPage - 1) * recordPerPage) + 1;
+		int eno = nowPage * recordPerPage;
+
+		Map map = new HashMap();
+		map.put("col", col);
+		map.put("word", word);
+		map.put("sno", sno);
+		map.put("eno", eno);
+
+		int total = mapper.total(map);
+
+		List<MemberDTO> list = mapper.list(map);
+
+		String paging = Utility.paging(total, nowPage, recordPerPage, col, word);
+
+		// request에 Model사용 결과 담는다
+		request.setAttribute("list", list);
+		request.setAttribute("nowPage", nowPage);
+		request.setAttribute("col", col);
+		request.setAttribute("word", word);
+		request.setAttribute("paging", paging);
+
+		return "/member/list";
+
+	}
+	
+	/* 회원정보 수정 페이지*/
+	@GetMapping("/member/update")
+	public String update(String id,Model model,HttpSession session) {
+		
+		if(id == null) {
+			id = (String) session.getAttribute("id");
+			//메인에서 넘어가기 때문에 id정보는 전달하기보다 세션에서 가져와야됨
+		}
+		
+		MemberDTO dto = mapper.read(id);
+		
+		model.addAttribute("dto",dto);
+		
+		return "/member/update";
+		
+		
+	}
+	
+	@PostMapping("/member/update")
+	public String update(MemberDTO dto,Model model) {
+		int cnt = mapper.update(dto);
+		
+		if(cnt==1) {
+			model.addAttribute("id",dto.getId());
+			return "redirect:./read"; //read페이지를 재요청
+		}else {
+			return "error";
+		}
+	}
+	
 	
 	/* 회원정보페이지 */
 	@GetMapping("/member/read")

@@ -1,5 +1,6 @@
 package spring.model.member;
 
+import java.util.List;
 import java.util.Map;
 
 public interface MemberMapper {
@@ -15,5 +16,11 @@ public interface MemberMapper {
 	String getGrade(String id);
 
 	MemberDTO read(String id);
+
+	int update(MemberDTO dto);
+
+	int total(Map map);
+
+	List<MemberDTO> list(Map map);
 
 }

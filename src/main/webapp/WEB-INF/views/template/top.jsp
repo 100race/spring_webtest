@@ -2,11 +2,14 @@
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <c:set var="root" value="${pageContext.request.contextPath }"/>
 <c:choose>
-	<c:when test="${empty sessionScope.id }">
-		<c:set var="str">기본 페이지 입니다.</c:set>
+	<c:when test="${not empty sessionScope.id && sessionScope.grade == 'A'}">
+		<c:set var="str">관리자 페이지 입니다.</c:set>
+	</c:when>
+	<c:when test="${not empty sessionScope.id && sessionScope.grade != 'A'}">
+		<c:set var="str">반갑습니다 ${sessionScope.id }님 !</c:set>
 	</c:when>
 	<c:otherwise>
-		<c:set var="str">반갑습니다 ${sessionScope.id }님 !</c:set>
+		<c:set var="str">기본 페이지 입니다.</c:set>
 	</c:otherwise>
 </c:choose>
 
@@ -68,6 +71,9 @@
     <li><a href="${root}/member/logout">로그아웃</a></li>
     </c:otherwise>
     </c:choose>
+    <c:if test="${not empty sessionScope.id && sessionScope.grade == 'A'}">
+    <li><a href="${root}/admin/list">회원목록</a></li>
+    </c:if>
   </ul>
 </div>
 </body>

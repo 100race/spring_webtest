@@ -36,6 +36,12 @@ INSERT INTO member(id, passwd, mname, tel, email, zipcode,
 address1,address2, job, mdate, fname, grade) 
 VALUES('user3', '1234', '개발자3', '123-1234', 'email3@mail.com',  
 '123-123','용인시','남동구' ,'A01', sysdate, 'myface.jpg', 'H'); 
+
+--관리자 계정
+INSERT INTO member2(id, passwd, mname, tel, email, zipcode,  
+address1,address2, job, mdate, fname, grade) 
+VALUES('admin', '1234', '관리자', '02-324-1234', 'admin@mail.com',  
+'123-123','용인시','남동구' ,'A01', sysdate, 'member.jpg', 'A'); 
  
  
 --중복 아이디 검사 관련 SQL 

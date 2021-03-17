@@ -105,7 +105,7 @@ modalRegisterBtn.on("click", function(e) {
 
 	var reply = {
 		content: modalInputContent.val(), //입력창부분의 value값을 넣어줌
-		id: 'user1',
+		id: session_id,
 		bbsno: bbsno
 	};
 
@@ -121,7 +121,7 @@ modalRegisterBtn.on("click", function(e) {
 }); // modalRegisterBtn.on end
 
 
-//[modal에 댓글 조회 클릭 이벤트 처리] 
+//[댓글 클릭 이벤트 처리] 아이디 체크해서 자신의 댓글만 수정가능
 $(".chat").on("click", "li", function(e) {
 
 	var rnum = $(this).data("rnum"); //클릭한 곳의 rnum을 꺼내옴.
@@ -133,8 +133,11 @@ $(".chat").on("click", "li", function(e) {
 
 		modal.find("button[id !='modalCloseBtn']").hide();
 
+		if(session_id == reply.id){ //댓글쓴이와 로그인한사람이 같을때
+			
 		modalModBtn.show();
 		modalRemoveBtn.show();
+		}
 
 		$(".modal").modal("show");
 
