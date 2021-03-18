@@ -11,4 +11,5 @@ public interface ReplyMapper {
 	int update(ReplyDTO dto);
 	int delete(int rnum);
 	int rcount(int bbsno);
+	int bdelete(int bbsno);
 }

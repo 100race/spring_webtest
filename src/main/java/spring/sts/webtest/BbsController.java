@@ -23,6 +23,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 import spring.model.bbs.BbsDTO;
 import spring.model.bbs.BbsMapper;
+import spring.model.bbs.BbsService;
 import spring.model.reply.ReplyMapper;
 import spring.utility.webtest.Utility;
 
@@ -35,6 +36,8 @@ public class BbsController {
 	private BbsMapper mapper;
 	@Autowired
 	private ReplyMapper rmapper;
+	@Autowired
+	private BbsService service;
 
 	@GetMapping("/bbs/fileDown")
 	public void fileDown(HttpServletRequest request, HttpServletResponse response) throws IOException {
@@ -123,7 +126,8 @@ public class BbsController {
 	}
 
 	/*
-	 * 정보를 가지고 삭제를 누르면 post로 진행
+	 * 정보를 가지고 삭제를 누르면 post로 진행 
+	 * + 댓글삭제 트랜잭션 (AOP사용) 구현 추가 2021.03.18
 	 */
 	@PostMapping("/bbs/delete") // 핸들러매핑. 요청url에 어떤 메소드가 매핑되는지. 컨트롤러에서 꼭 써줘야함.
 	public String delete(int bbsno, String passwd, String oldfile, HttpServletRequest request) {
@@ -135,24 +139,43 @@ public class BbsController {
 
 		boolean pflag = false;
 		int cnt = mapper.passCheck(map);
-		if (cnt > 0)
-			pflag = true;
-		boolean flag = false;
-		if (pflag) {
-			if (oldfile != null)
-				Utility.deleteFile(upDir, oldfile);
-			int cnt2 = mapper.delete(bbsno);
-			if (cnt2 > 0)
-				flag = true;
+		
+		String url = "/bbs/passwdError";
+		
+		if(cnt > 0) {
+			
+			try {
+				service.delete(bbsno);  // AOP로 구현한 트랜잭션으로 댓글 - 게시글 삭제하기
+				url = "redirect:/bbs/list"; //성공시 갈 곳
+				if (oldfile != null)
+					Utility.deleteFile(upDir, oldfile);
+			}catch(Exception e) {
+				e.printStackTrace();
+				url = "/bbs/error"; //실패시 갈 곳
+			}
+			
 		}
-
-		if (!pflag) {
-			return "/bbs/passwdError"; // foward : 속성값 유지
-		} else if (flag) {
-			return "redirect:/bbs/list"; // redirect : 초기화
-		} else {
-			return "/bbs/error";
-		}
+		
+//		if (cnt > 0)
+//			pflag = true;
+//		boolean flag = false;
+//		if (pflag) {
+//			if (oldfile != null)
+//				Utility.deleteFile(upDir, oldfile);
+//			int cnt2 = mapper.delete(bbsno);
+//			if (cnt2 > 0)
+//				flag = true;
+//		}
+//
+//		if (!pflag) {
+//			return "/bbs/passwdError"; // foward : 속성값 유지
+//		} else if (flag) {
+//			return "redirect:/bbs/list"; // redirect : 초기화
+//		} else {
+//			return "/bbs/error";
+//		}
+		
+		return url;
 	}
 
 	/*

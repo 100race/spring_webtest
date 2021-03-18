@@ -5,6 +5,10 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
 <mapper namespace="spring.model.reply.ReplyMapper">
+	<delete id="bdelete" parameterType="int">
+		delete from reply
+		where bbsno = #{bbsno}
+	</delete>
 	<select id="rcount" parameterType="int" resultType="int">
 		select count(*) from reply
 		where bbsno = #{bbsno}
