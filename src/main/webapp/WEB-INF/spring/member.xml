@@ -25,8 +25,12 @@
        <put-attribute name="body" value="/WEB-INF/views/member/updateForm.jsp"  />
    </definition>
    <definition name="/member/list" extends="main">
-       <put-attribute name="title" value="정보수정"></put-attribute>
+       <put-attribute name="title" value="회원목록"></put-attribute>
        <put-attribute name="body" value="/WEB-INF/views/member/list.jsp"  />
+   </definition>
+    <definition name="/member/updateFile" extends="main">
+       <put-attribute name="title" value="사진수정"></put-attribute>
+       <put-attribute name="body" value="/WEB-INF/views/member/updateFileForm.jsp"  />
    </definition>
 
 </tiles-definitions>

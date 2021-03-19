@@ -23,4 +23,6 @@ public interface MemberMapper {
 
 	List<MemberDTO> list(Map map);
 
+	int updateFile(Map map);
+
 }

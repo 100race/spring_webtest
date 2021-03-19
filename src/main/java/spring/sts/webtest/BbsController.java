@@ -24,6 +24,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import spring.model.bbs.BbsDTO;
 import spring.model.bbs.BbsMapper;
 import spring.model.bbs.BbsService;
+import spring.model.bbs.BbsVO;
 import spring.model.reply.ReplyMapper;
 import spring.utility.webtest.Utility;
 
@@ -38,6 +39,24 @@ public class BbsController {
 	private ReplyMapper rmapper;
 	@Autowired
 	private BbsService service;
+	
+	/* JPA 이용한*/
+	@PostMapping("/bbs/createJPA")
+	public String create(BbsVO dto, HttpServletRequest request) {
+		String basePath = request.getRealPath("/storage");
+		dto.setFilename(Utility.saveFileSpring(dto.getFilenameMF(), basePath));
+		if(dto.getFilenameMF()!=null) { //업로드된 파일처리
+			dto.setFilename(Utility.saveFileSpring(dto.getFilenameMF(), basePath));
+			dto.setFilesize((int)dto.getFilenameMF().getSize());
+		}
+		
+		try {//orm을 하고있다. or매핑
+			service.insert(dto);
+			return "redirect:./list";
+		}catch(Exception e) {
+			return "./error";
+		}
+	}
 
 	@GetMapping("/bbs/fileDown")
 	public void fileDown(HttpServletRequest request, HttpServletResponse response) throws IOException {

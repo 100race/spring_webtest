@@ -64,5 +64,24 @@
 			pointcut-ref="transactionPointcut" />
 	</aop:config>
 
+	<!-- Transaction Manager JPA -->
+	<beans:bean id="txManager"
+		class="org.springframework.orm.jpa.JpaTransactionManager">
+		<beans:property name="entityManagerFactory"
+			ref="entityManagerFactory" />
+	</beans:bean>
+	<tx:advice id="txAdvice2" transaction-manager="txManager">
+		<tx:attributes>
+			<tx:method name="insert" rollback-for="Exception" />
+		</tx:attributes>
+	</tx:advice>
+
+	<aop:config>
+		<aop:pointcut id="transactionPointcut2"
+			expression="execution(* spring.model.bbs.*Service.*(..))" />
+		<aop:advisor advice-ref="txAdvice2"
+			pointcut-ref="transactionPointcut2" />
+	</aop:config>
+
 
 </beans:beans>

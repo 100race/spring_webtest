@@ -1,14 +1,19 @@
 package spring.sts.webtest;
 
+import java.io.File;
+import java.io.IOException;
+import java.net.URLEncoder;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import javax.servlet.ServletContext;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
+import org.apache.commons.io.FileUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -17,6 +22,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.multipart.MultipartFile;
 
 import spring.model.member.MemberDTO;
 import spring.model.member.MemberMapper;
@@ -28,6 +34,53 @@ public class MemberController {
 	@Autowired
 	private MemberMapper mapper;
 	
+	/* 회원 사진 수정 */
+	@PostMapping("/member/updateFile")
+	public String updateFile(MultipartFile fnameMF, String oldfile,
+			HttpSession session, //id 필요
+			HttpServletRequest request) { //절대경로 위해 필요
+		
+		String basePath = request.getRealPath("/storage"); //업로드 경로 잡으려면 request필요
+		//oldfile먼저 삭제해줌
+		
+		if(oldfile !=null && !oldfile.equals("member.jpg")) { //원본파일 삭제
+			Utility.deleteFile(basePath, oldfile); 
+		}
+		
+		//storage 파일 저장, 디비의 파일명 변경
+		Map map = new HashMap();
+		map.put("id", session.getAttribute("id"));
+		map.put("fname", Utility.saveFileSpring(fnameMF, basePath)); //스토리지에 변경파일 저장한다.
+		
+		
+		//디비에 파일명 변경
+		int cnt = mapper.updateFile(map);
+		
+		if(cnt==1) {
+			return "redirect:./read"; //member의 read 로 보내주겠다
+		}else {
+			return "./error"; //member의 error 로 보내주겠다
+		}
+		
+	}
+	
+	/* 내가만든 회원 사진 수정 */
+	@GetMapping("/member/updateFile")
+	public String updateFile() {
+		//String id, Model model, HttpSession session
+//		if(id == null) {
+//			id = (String) session.getAttribute("id");
+//			//메인에서 넘어가기 때문에 id정보는 전달하기보다 세션에서 가져와야됨
+//		}
+//		
+//		MemberDTO dto = mapper.read(id);
+//		
+//		model.addAttribute("dto",dto);
+//		
+		return "/member/updateFile";
+	}
+	
+	/* 관리자만 볼 수 있는 회원목록페이*/
 	@RequestMapping("/admin/list")
 	public String list(HttpServletRequest request) {
 		
@@ -103,6 +156,28 @@ public class MemberController {
 		}
 	}
 	
+	@GetMapping("/member/download")
+	public void download(HttpServletRequest request,
+			HttpServletResponse response) throws IOException {
+		ServletContext ctx = request.getSession().getServletContext();
+		// 절대경로
+		String dir = ctx.getRealPath(request.getParameter("dir"));
+		String filename = request.getParameter("filename");
+		byte[] files = FileUtils.readFileToByteArray(new File(dir, filename));
+		response.setHeader("Content-disposition",
+				"attachment; fileName=\"" + URLEncoder.encode(filename, "UTF-8") + "\";");
+		// Content-Transfer-Encoding : 전송 데이타의 body를 인코딩한 방법을 표시함.
+		response.setHeader("Content-Transfer-Encoding", "binary");
+		/**
+		 * Content-Disposition가 attachment와 함게 설정되었다면 'Save As'로 파일을 제안하는지 여부에 따라 브라우저가
+		 * 실행한다.
+		 */
+		response.setContentType("application/octet-stream");
+		response.setContentLength(files.length);
+		response.getOutputStream().write(files);
+		response.getOutputStream().flush();
+		response.getOutputStream().close();
+	}
 	
 	/* 회원정보페이지 */
 	@GetMapping("/member/read")

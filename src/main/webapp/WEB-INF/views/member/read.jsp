@@ -23,9 +23,9 @@
   }
   
   function updateFile(){
-	  var url = "updateFileForm";
-	  url += "?id=${dto.id}";
-	  url += "&oldfile=${dto.fname}";
+	  var url = "updateFile";
+	  //url += "?id=${dto.id}"; url += "&oldfile=${dto.fname}"; 아이디정보는 세션에서 가져올거기때문에 없애줌. id 노출 줄여주고 싶어서
+	  url += "?oldfile=${dto.fname}";
 	  location.href = url;
   }
   function deleteM(){
@@ -90,7 +90,7 @@
  <button class="btn btn-default" onclick="updateFile()">사진수정</button>
  <button class="btn btn-default" onclick="updatePw()">패스워드변경</button>
  <button class="btn btn-default" 
- onclick="location.href='${root}/download?dir=storage&filename=${dto.fname}'">다운로드</button>  
+ onclick="location.href='./download?dir=storage&filename=${dto.fname}'">다운로드</button>  
 </c:if>
  <button class="btn btn-default" onclick="deleteM()">회원탈퇴</button>
  <c:if test="${not empty dto.id and dto.grade == 'A'}">

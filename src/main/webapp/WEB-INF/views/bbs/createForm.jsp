@@ -44,7 +44,7 @@
 <div class="container">
 <h1 class="col-sm-offset-2 col-sm-10">게시판 생성</h1>
 <form class="form-horizontal" 
-      action="create"
+      action="createJPA"
       method="post"
       enctype="multipart/form-data"
       onsubmit="return checkIn(this)"

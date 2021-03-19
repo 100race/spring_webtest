@@ -10,9 +10,14 @@ public class BbsService {
 	
 	@Autowired
 	private BbsMapper mapper;
-	
 	@Autowired
 	private ReplyMapper rmapper;
+	@Autowired
+	private BbsDAOJPA jpa;
+	
+	public void insert(BbsVO vo) {
+		jpa.insertBbs(vo);
+	}
 	
 	public void delete(int bbsno) throws Exception{ //조인포인트 - 하나임(?)
 		
